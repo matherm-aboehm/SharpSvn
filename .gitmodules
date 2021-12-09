@@ -1,0 +1,4 @@
+[submodule "src/SharpPlink/PuttySrc"]
+	path = src/SharpPlink/PuttySrc
+	url = https://github.com/rhuijben/putty.git
+	branch = main

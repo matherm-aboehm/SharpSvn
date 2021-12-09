@@ -1,20 +1,112 @@
 [Oo]bj/
 [Bb]in/
-/imports/build/
-/imports/downloads/
-/imports/svn-dist/build/
-/imports/svn-dist/release/
-/imports/NAnt.*/
-/imports/release/
 .vs/
+.vscode/
 *.user
 [Uu]pgrade[Ll]og.htm
 [Mm]igration[Bb]ackup/
 packages/
+/release
+
+# /
+/v40
+
+# /imports/
+/imports/include
+/imports/lib
+/imports/zip
+/imports/bin
+/imports/build/
+/imports/downloads/
+/imports/NAnt.*/
+/imports/release/
+
+# /imports/SharpSvn-SvnI18n/
+/imports/SharpSvn-SvnI18n/bin_2008
+/imports/SharpSvn-SvnI18n/obj_2008
+/imports/SharpSvn-SvnI18n/bin
+/imports/SharpSvn-SvnI18n/obj
+/imports/SharpSvn-SvnI18n/SharpSvn-SvnI18n-VS*
+
+# /imports/svn-dist/
+/imports/svn-dist/build/
+/imports/svn-dist/release/
+/imports/svn-dist/downloads
+/imports/svn-dist/dist-x64
+/imports/svn-dist/dist-win32
+
+# /imports/svn-dist/Wix/
+/imports/svn-dist/Wix/bin
+/imports/svn-dist/Wix/obj
+/imports/svn-dist/Wix/*.suo
+/imports/svn-dist/Wix/*.user
+
+# /src/
+/src/*.ncb
+/src/Help
+/src/*.suo
+/src/*.sdf
+/src/packages
+
+# /src/SharpPlink/
+/src/SharpPlink/bin_2008
+/src/SharpPlink/obj_2008
+/src/SharpPlink/bin
+/src/SharpPlink/obj
+/src/SharpPlink/*.user
+
+# /src/SharpSvn/SvnText/
 /src/SharpSvn/SvnText/
+/src/SharpSvn/SvnText/SvnText.*.resx
+
+# /src/SharpSvn/
 /src/SharpSvn/SharpSvnStrings.resources
+/src/SharpSvn/bin_2008
+/src/SharpSvn/obj_2008
+/src/SharpSvn/bin
+/src/SharpSvn/obj
+/src/SharpSvn/*.user
 /src/SharpSvn/SvnWindowsError.h
 /src/SharpSvn/CppCodeProvider.dll
+
+# /src/SharpSvn.Discover/
+/src/SharpSvn.Discover/bin
+/src/SharpSvn.Discover/obj
+/src/SharpSvn.Discover/*.user
+
+# /src/SharpSvn.Docs/
+/src/SharpSvn.Docs/Help
+
+# /src/SharpSvn.Tests/
+/src/SharpSvn.Tests/bin_2008
+/src/SharpSvn.Tests/bin
+/src/SharpSvn.Tests/obj
+/src/SharpSvn.Tests/*.user
+
+# /src/SharpSvn.UI/
+/src/SharpSvn.UI/bin
+/src/SharpSvn.UI/obj
+
+# /src/tools/CollabUpload/
+/src/tools/CollabUpload/bin
+/src/tools/CollabUpload/obj
+/src/tools/CollabUpload/*.user
+
+# /src/tools/Errors2Enum/
+/src/tools/Errors2Enum/bin
+/src/tools/Errors2Enum/obj
+/src/tools/Errors2Enum/*.user
+
+# /src/tools/HookNotifier/
+/src/tools/HookNotifier/bin
+/src/tools/HookNotifier/obj
+/src/tools/HookNotifier/*.user
+
+# /src/tools/Po2Resx/
+/src/tools/Po2Resx/bin
+/src/tools/Po2Resx/obj
+/src/tools/Po2Resx/*.user
+
 
 # Buildbot Scripting
 scripts/*.cache.bat

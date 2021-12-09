@@ -1,1 +1,19 @@
+*			text=auto
+*.c			text
+*.cpp		text
+*.h			text
+*.cs		text
+*.build		text
+*.dll		binary
+*.msm		binary
+*.ico		binary
+*.rtf		binary
+*.snk		binary
+*.exe		binary
+*.zip		binary
+*.pdn		binary
+*.bmp		binary
+*.png		binary
+imports/patches/openssl/*.patch		text eol=lf
+*.cmd		text eol=crlf
 *.repos binary
