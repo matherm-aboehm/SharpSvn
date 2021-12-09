@@ -6,6 +6,23 @@
 
   <property name="saslDllName" value="libsasl.dll" />
   <property name="saslDllName" value="${dllPrefix}libsasl${SASL_MAJOR_VERSION}${SASL_MINOR_VERSION}.${svnDll}" if="${dllPrefix!=''}"/>
+  <property name="heimdalOutDir" value="" />
+  <property name="heimdalOutDir" value="${path::get-full-path(heimdalDir + '/out/dest_i386')}" if="${platform=='win32'}" />
+  <property name="heimdalOutDir" value="${path::get-full-path(heimdalDir + '/out/dest_AMD64')}" if="${platform=='x64'}" />
+  <property name="useHeimdal" value="true" />
+  <property name="useHeimdal" value="false" if="${string::contains(string::to-upper(platform),'ARM')}" />
+  <property name="gssAPIDefines" value="" />
+  <property name="gssAPIDefines" value="/D GSSAPI_STATIC=1" if="${useHeimdal}" />
+  <property name="gssAPISources" value="" />
+  <property name="gssAPISources" value="../plugins/gssapi.c" if="${useHeimdal}" />
+  <property name="gssAPIObjects" value="" />
+  <property name="gssAPIObjects" value="../plugins/gssapi.obj" if="${useHeimdal}" />
+  <property name="gssAPILibs32" value="/libpath:$(GSSAPI_LIBPATH) gssapi32.lib" />
+  <property name="gssAPILibs64" value="/libpath:$(GSSAPI_LIBPATH) gssapi64.lib" />
+  <property name="gssAPILibs" value="" />
+  <property name="gssAPILibs" value="${gssAPILibs32}" if="${useHeimdal and platform=='win32'}" />
+  <property name="gssAPILibs" value="${gssAPILibs64}" if="${useHeimdal and platform=='x64'}" />
+
 
   <target name="sasl-prepare" depends="checkout, bdb-build, openssl-build">
     <OnceBlock file="build/sasl-${saslVersion}_${platform}.prepared">
@@ -28,7 +45,7 @@
           <replacestring from='/* which mechs can we link staticly? */' to='#define STATIC_NTLM 1 /* Which mechs can we link staticly?  */ ' />
           <replacestring from='#define STATIC_OTP 1' to='/* #undef STATIC_OTP */' />
           <replacestring from='#define STATIC_SRP 1' to='/* #undef STATIC_SRP */' />
-          <replacestring from='#define STATIC_GSSAPIV2 1' to='/* #undef STATIC_GSSAPIV2 */' />
+          <replacestring from='#define STATIC_GSSAPIV2 1' to='/* #undef STATIC_GSSAPIV2 */' unless="${useHeimdal}" />
           <replacestring from='typedef int ssize_t;' to='typedef INT_PTR ssize_t;' />
           <LineRegexReplace re='(#define snprintf .*)'
                          to='#if _MSC_VER &lt; 1900
@@ -66,13 +83,16 @@ $1
       <FilterFile file="${saslDir}/plugins/NTMakefile">
         <filterchain>
           <replacestring from='"afxres.h"' to='&lt;winresrc.h&gt;' />
-          <replacestring from='CPPFLAGS = /D NEED_GETOPT' to='CPPFLAGS = /D _CRT_SECURE_NO_WARNINGS /D NEED_GETOPT' />
-          <replacestring from='$(LINK32DLL_FLAGS) /out' to='/MACHINE:x64 /out' if="${platform=='x64'}" />
-          <replacestring from='$(LINK32DLL_FLAGS) /out' to='/MACHINE:ARM64 /out' if="${platform=='ARM64'}" />
+          <replacestring from='CPPFLAGS = /I "..\win32\include"'
+           to='CPPFLAGS = /Gy /Zi /Fd..\lib\libsasl.pdb /D _CRT_SECURE_NO_WARNINGS /D NEED_GETOPT /I "..\win32\include"' />
+          <replacestring from='$(LINK32DLL_FLAGS) /out' to='$(LINK32DLL_FLAGS) /MACHINE:x64 /out' if="${platform=='x64'}" />
+          <replacestring from='$(LINK32DLL_FLAGS) /out' to='$(LINK32DLL_FLAGS) /MACHINE:ARM64 /out' if="${platform=='ARM64'}" />
           <replacestring from='/D "WIN32"' to='/D "WIN32" /D "WIN64"' if="${platform!='win32'}" />
+          <replacestring from='${gssAPILibs32}' to='${gssAPILibs64}' if="${platform=='x64'}" />
           <replacestring from='$(LINK32DLL_FLAGS)' to='$(LIB32_FLAGS)' />
           <replacestring from='$(LINK32DLL)' to='$(LIB32)' />
           <replacestring from='OPENSSL_LIBS=' to='OPENSSL_QQ_LIBS=' />
+          <replacestring from='CyberSafe' to='Heimdal' if="${useHeimdal}" />
           <LineRegexReplace re='/implib:"sasl[A-Za-z0-9_]+\.lib" ' to='' />
           <LineRegexReplace re=' ([a-zA-Z0-9_]+)_init.(c|obj)' to='' />
           <LineRegexReplace re='(sasl[A-Z0-9a-z]+)_out\s*=\s*(\1).dll\s+(\1).exp\s*(\1).exp' to='$1_out = ' />
@@ -85,9 +105,9 @@ $1
           <replacestring from='"afxres.h"' to='&lt;winresrc.h&gt;' />
           <replacestring
             from='CPPFLAGS = /wd4996 /Wp64 /D NEED_GETOPT'
-            to='CPPFLAGS = /Gy /Zi /Fdlibsasl.pdb /Zl /O1 /D NTLM_STATIC=1 /D _CRT_SECURE_NO_WARNINGS /D NEED_GETOPT /wd4996 /I "$(OPENSSL_INCLUDE)"' />
-          <replacestring from=' windlopen.c ' to=' dlopen.c ../plugins/ntlm.c ../plugins/digestmd5.c ../plugins/crammd5.c ../plugins/login.c ../plugins/plain.c ../plugins/anonymous.c ../plugins/sasldb.c ../plugins/allockey.c ../plugins/db_berkeley.c ' />
-          <replacestring from=' windlopen.obj ' to=' dlopen.obj ../plugins/ntlm.obj ../plugins/digestmd5.obj ../plugins/cram.obj ../plugins/login.obj ../plugins/plain.obj ../plugins/anonymous.obj ../plugins/sasldb.obj ../plugins/allockey.obj ../plugins/db_berkeley.obj ' />
+            to='CPPFLAGS = /Gy /Zi /Fdlibsasl.pdb /Zl /O1 /D NTLM_STATIC=1 ${gssAPIDefines} /D _CRT_SECURE_NO_WARNINGS /D NEED_GETOPT /wd4996 /I "$(OPENSSL_INCLUDE)"' />
+          <replacestring from=' windlopen.c ' to=' dlopen.c ../plugins/ntlm.c ${gssAPISources} ../plugins/digestmd5.c ../plugins/crammd5.c ../plugins/login.c ../plugins/plain.c ../plugins/anonymous.c ../plugins/sasldb.c ../plugins/allockey.c ../plugins/db_berkeley.c ' />
+          <replacestring from=' windlopen.obj ' to=' dlopen.obj ../plugins/ntlm.obj ${gssAPIObjects} ../plugins/digestmd5.obj ../plugins/cram.obj ../plugins/login.obj ../plugins/plain.obj ../plugins/anonymous.obj ../plugins/sasldb.obj ../plugins/allockey.obj ../plugins/db_berkeley.obj ' />
           <replacestring from='/D "WIN32"' to='/D "WIN32" /D "WIN64"' if="${platform!='win32'}" />
           <!-- Shared Library -->
           <replacestring from='$(LINK32DLL_FLAGS) /out' to='$(LINK32DLL_FLAGS) /MACHINE:x64 /out' if="${platform=='x64'}" unless="${static}" />
@@ -96,7 +116,7 @@ $1
           <replacestring from='libsasl.dll' to='${saslDllName}' if="${dllPrefix != ''}" unless="${static}" />
           <!-- Static library -->
           <replacestring from='$(LINK32DLL)' to='$(LIB32)' if="${static}" />
-          <replacestring from='$(LINK32DLL_FLAGS)' to='$(LIB32_FLAGS)' if="${static}" />
+          <replacestring from='$(LINK32DLL_FLAGS)' to='$(LIB32_FLAGS) ${gssAPILibs}' if="${static}" />
           <replacestring from=' $(libsasl_res)' to='' if="${static}" />
           <replacestring from='/implib:"libsasl.lib" ' to='' if="${static}" />
           <replacestring from='libsasl.dll libsasl.exp libsasl.lib' to='libsasl.lib' if="${static}" />
@@ -122,6 +142,11 @@ $1
         <arg value="OPENSSL_LIBS=/libpath:${path::get-full-path(intDir + '/lib')} ${libcryptoName} ${libsslName}" />
         <arg value="NTLM=1" />
         <arg value="NTLM_STATIC=1" />
+        <arg value="GSSAPI=Heimdal" if="${useHeimdal}" />
+        <arg value="GSSAPI_STATIC=1" if="${useHeimdal}" />
+        <!-- Use compatibility layer -->
+        <arg value="GSSAPI_INCLUDE=${path::get-full-path(heimdalDir + '/thirdparty/mkshim/mit-include')}" if="${useHeimdal}" />
+        <arg value="GSSAPI_LIBPATH=${path::get-full-path(heimdalOutDir + '/lib')}" if="${useHeimdal}" />
         <arg value="LIB32=lib.exe /nologo" />
       </NMake>
       <!-- VS2005 and VS2008 binaries need a manifest -->
