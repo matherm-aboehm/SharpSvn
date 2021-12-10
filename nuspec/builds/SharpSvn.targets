@@ -1,6 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition=" '$(MSBuildThisFileDirectory)' != '' ">
     <!-- Note that all these files are identical for CORE and NETFRAMEWORK, as they are just compiled once, and then used by SharpSvn -->
+    <SharpSvnPlatform Condition=" '$(SharpSvnPlatform)' == '' ">$(PlatformTarget)</SharpSvnPlatform>
     <SharpSvnPlatform Condition=" '$(SharpSvnPlatform)' == '' ">$(Platform)</SharpSvnPlatform>
     <!-- Default -->
     <SharpSvnRuntimeDir>$(MSBuildThisFileDirectory)\..\runtimes\win-x86\lib\netcoreapp\</SharpSvnRuntimeDir>
@@ -15,6 +16,7 @@
   <ItemGroup Condition=" '$(SharpSvnRuntimeDir)' != '' ">
     <SharpSvnExternalFiles Include="$(SharpSvnRuntimeDir)\*.svnExe" Condition=" '$(CopySharpSvnExternals)' != 'false' " />
     <SharpSvnExternalFiles Include="$(SharpSvnRuntimeDir)\*.svnDll" Condition=" '$(CopySharpSvnExternals)' != 'false' " />
+    <SharpSvnExternalFiles Include="@(SharpSvnExternalFiles -> '%(RelativeDir)%(Filename).pdb')" Condition=" '$(CopySharpSvnExternals)' != 'false' " />
     <SharpSvnExternalFiles Include="$(SharpSvnRuntimeDir)\*.xml" Condition=" '$(CopySharpSvnExternals)' != 'false' And '$(CopySharpSvnDocumentation)' != 'false'" />
   </ItemGroup>
 
