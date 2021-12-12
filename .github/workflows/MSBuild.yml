@@ -10,6 +10,8 @@ on:
 env:
   SOLUTION_FILE_PATH: src/SharpSvn.sln
   nant: '${{ github.workspace }}/src/packages/NAnt.0.92.0/tools/nant.exe'
+  heimdal_path: 'imports/build/heimdal'
+  MinGWPath: 'C:\msys64'
 
 jobs:
   build:
@@ -18,6 +20,34 @@ jobs:
     steps:
     - name: Git Checkout
       uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Checkout heimdal
+      uses: actions/checkout@v2
+      with:
+        repository: matherm-aboehm/heimdal
+        ref: matherm-aboehm/vs2017-support
+        path: ${{ env.heimdal_path }}
+        submodules: true
+
+    - name: Get Commit SHA of heimdal
+      id: heimdal
+      working-directory: ${{ env.heimdal_path }}
+      run: echo "::set-output name=sha::$(git rev-parse HEAD)"
+
+    - name: Checkout heimdal/mkshim
+      uses: actions/checkout@v2
+      with:
+        repository: matherm-aboehm/MKShim
+        ref: vs2017-support
+        path: ${{ env.heimdal_path }}/thirdparty/mkshim
+        submodules: true
+
+    - name: Get Commit SHA of mkshim
+      id: mkshim
+      working-directory: ${{ env.heimdal_path }}/thirdparty/mkshim
+      run: echo "::set-output name=sha::$(git rev-parse HEAD)"
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1
@@ -29,6 +59,16 @@ jobs:
       working-directory: imports/
       run: nuget.exe install NAnt
 
+    - name: Setup SHFB
+      uses: matherm-aboehm/setup-SHFB@v1
+      with:
+        version: v2021.11.7.0
+
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        install: texinfo bison flex
+
     - name: Cache preparations
       id: cache
       uses: actions/cache@v2
@@ -37,8 +77,7 @@ jobs:
           imports/release
           imports/build/refasmer
           !imports/release/bin-*
-          !imports/release/bin/*.pdb
-        key: ${{runner.os}}-MSBuild-${{ hashFiles('imports/*.build') }}-${{ hashFiles('imports/scripts/*.build') }}
+        key: ${{runner.os}}-MSBuild-${{ hashFiles('imports/*.build') }}-${{ hashFiles('imports/scripts/*.build') }}-${{ steps.heimdal.outputs.sha }}-${{ steps.mkshim.outputs.sha }}
 
     - name: Cache Import Downloads
       if: steps.cache.outputs.cache-hit != 'true'
@@ -48,9 +87,28 @@ jobs:
           imports/downloads
         key: ${{runner.os}}-Import-Downloads-${{ hashFiles('imports/*.build') }}
 
+    - name: Cache heimdal
+      id: cache_heimdal
+      if: steps.cache.outputs.cache-hit != 'true'
+      uses: actions/cache@v2
+      with:
+        path: |
+          ${{ env.heimdal_path }}/out
+        key: ${{runner.os}}-Heimdal-${{ steps.heimdal.outputs.sha }}-${{ steps.mkshim.outputs.sha }}
+        
+    - name: Build Heimdal-x86
+      if: steps.cache.outputs.cache-hit != 'true' && steps.cache_heimdal.outputs.cache-hit != 'true'
+      working-directory: ${{ env.heimdal_path }}
+      run: msbuild /m /p:Platform=Win32 /p:Configuration=Debug "/p:MinGWPath=${{ env.MinGWPath }}\usr\bin" heimdal.vcxproj
+
+    - name: Build Heimdal-x64
+      if: steps.cache.outputs.cache-hit != 'true' && steps.cache_heimdal.outputs.cache-hit != 'true'
+      working-directory: ${{ env.heimdal_path }}
+      run: msbuild /m /p:Platform=x64 /p:Configuration=Debug "/p:MinGWPath=${{ env.MinGWPath }}\usr\bin" heimdal.vcxproj
+
     - name: Run NAnt preparations
       if: steps.cache.outputs.cache-hit != 'true'
-      run: ${{env.nant}} -f:tools/buildbot.build buildbot-build
+      run: ${{env.nant}} -f:tools/buildbot.build "-D:heimdalDir=${{ github.workspace }}/${{ env.heimdal_path }}" buildbot-build
 
     - name: Setup version
       run: scripts\gh-version-setup.cmd ${{ github.run_number }}
