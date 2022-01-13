@@ -20,7 +20,7 @@ namespace SharpSvn {
     namespace Implementation {
 
         [System::AttributeUsage(AttributeTargets::Assembly, AllowMultiple=true)]
-        public ref class SvnLibraryAttribute sealed : public System::Attribute
+        ref class SvnLibraryAttribute sealed : public System::Attribute
         {
             initonly String^ _name;
             initonly String^ _version;
