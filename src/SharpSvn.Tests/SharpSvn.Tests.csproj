@@ -11,7 +11,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Deterministic>false</Deterministic>
-    <LangVersion>3</LangVersion>
+    <LangVersion>7.2</LangVersion>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -19,7 +19,14 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>SharpSvn.Tests.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-  
+
+  <PropertyGroup>
+    <!-- Somehow needed for NuGet restore -->
+    <TargetFramework>net47</TargetFramework>
+    <TargetFramework Condition="'$(Configuration)' == 'DebugCore'">netcoreapp3.1</TargetFramework>
+    <TargetFramework Condition="'$(Configuration)' == 'ReleaseCore'">netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <TargetFramework>net47</TargetFramework>
     <DebugSymbols>true</DebugSymbols>
@@ -162,11 +169,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="2.2.5" />
-    <PackageReference Include="MSTest.TestFramework" Version="2.2.5" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
     <PackageReference Include="NUnit" Version="3.13.2" />
-    <PackageReference Include="System.CodeDom" Version="5.0.0" />
+    <PackageReference Include="System.CodeDom" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>

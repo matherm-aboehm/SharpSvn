@@ -10,7 +10,7 @@ if "%1" == "-gh" (
   SET SVN_VER=%SVN_VER_MAJOR%.%SVN_VER_MINOR%.%SVN_VER_PATCH%
   SET SHARPSVN_VER=%SHARPSVN_MAJOR%.%SHARPSVN_MINOR%.%SHARPSVN_PATCH%
 ) else if "%2" == "" (
-  echo "%0 <proj-ver> <sharpproj-ver>"
+  echo "%0 <svn-ver> <sharpsvn-ver>"
   exit /b 1
 ) else (
   SET SVN_VER=%1
@@ -33,12 +33,16 @@ popd
 
 
 CALL :xmlpoke SharpSvn.nuspec //nu:metadata/nu:version %SHARPSVN_VER% || EXIT /B 1
+IF NOT "%GIT_SHA%" == "" CALL :xmlpoke SharpSvn.nuspec "//nu:repository[@type='git']/@commit" %GIT_SHA% || EXIT /B 1
 
 CALL :xmlpoke SharpSvn.UI.nuspec //nu:metadata/nu:version %SHARPSVN_VER% || EXIT /B 1
 CALL :xmlpoke SharpSvn.UI.nuspec "//nu:dependency[@id='SharpSvn']/@version" "[%SHARPSVN_VER%]" || EXIT /B 1
+IF NOT "%GIT_SHA%" == "" CALL :xmlpoke SharpSvn.UI.nuspec "//nu:repository[@type='git']/@commit" %GIT_SHA% || EXIT /B 1
 
 CALL :xmlpoke SharpSvn.AnnotateAssembly.nuspec //nu:metadata/nu:version %SHARPSVN_VER% || EXIT /B 1
+IF NOT "%GIT_SHA%" == "" CALL :xmlpoke SharpSvn.AnnotateAssembly.nuspec "//nu:repository[@type='git']/@commit" %GIT_SHA% || EXIT /B 1
 CALL :xmlpoke SharpSvn.ShortMSDeployWebContentPath.nuspec //nu:metadata/nu:version %SHARPSVN_VER% || EXIT /B 1
+IF NOT "%GIT_SHA%" == "" CALL :xmlpoke SharpSvn.ShortMSDeployWebContentPath.nuspec "//nu:repository[@type='git']/@commit" %GIT_SHA% || EXIT /B 1
 
 nuget pack -Symbols SharpSvn.nuspec -version %SHARPSVN_VER% -OutputDirectory bin || exit /B 1
 nuget pack -Symbols SharpSvn.UI.nuspec -version %SHARPSVN_VER% -OutputDirectory bin || exit /B 1
@@ -49,5 +53,6 @@ popd
 goto :eof
 
 :xmlpoke
+echo msbuild /nologo /v:m xmlpoke.build "/p:File=%1" "/p:XPath=%2" "/p:Value=%3" || exit /B 1
 msbuild /nologo /v:m xmlpoke.build "/p:File=%1" "/p:XPath=%2" "/p:Value=%3" || exit /B 1
 exit /B 0

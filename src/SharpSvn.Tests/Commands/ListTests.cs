@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright 2008-2009 The SharpSvn Project
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +29,7 @@ using Is = NUnit.Framework.Is;
 using SharpSvn.TestBuilder;
 
 using SharpSvn.Security;
+using System.Threading.Tasks;
 
 namespace SharpSvn.Tests.Commands
 {
@@ -155,7 +156,7 @@ namespace SharpSvn.Tests.Commands
         [TestMethod]
         public void List_ListSharp()
         {
-            using (SvnClient client = new SvnClient())
+            using (SvnClient client = NewSvnClient(false, false))
             {
                 Client.Authentication.Clear();
                 Client.Authentication.DefaultCredentials = new NetworkCredential("guest", "");
@@ -174,24 +175,24 @@ namespace SharpSvn.Tests.Commands
         [TestMethod, Ignore]
         public void List_ParallelList()
         {
-            List<IAsyncResult> handlers = new List<IAsyncResult>();
+            List<Task> handlers = new List<Task>();
             for (int i = 0; i < 32; i++)
             {
                 int n = i;
-                EventHandler eh = delegate
+
+                handlers.Add(Task.Run(() =>
                 {
                     Trace.WriteLine("Starting job" + n.ToString());
-                    new SvnClient().List(new Uri("https://ctf.open.collab.net/svn/repos/sharpsvn/trunk/src/SharpSvn"),
+                    using (var cl = new SvnClient())
+                    {
+                        SetupAuth(cl);
+                        cl.List(new Uri("https://ctf.open.collab.net/svn/repos/sharpsvn/trunk/src/SharpSvn"),
                         delegate { });
-                };
-
-                handlers.Add(eh.BeginInvoke(null, EventArgs.Empty, null, eh));
+                    }
+                }));
             }
 
-            foreach (IAsyncResult ar in handlers)
-            {
-                ((EventHandler)ar.AsyncState).EndInvoke(ar);
-            }
+            Task.WaitAll(handlers.ToArray());
         }
 
         [TestMethod]
@@ -201,24 +202,20 @@ namespace SharpSvn.Tests.Commands
             Uri CollabReposUri = sbox.CreateRepository(SandBoxRepository.MergeScenario);
 
             Uri reposUri = new Uri(CollabReposUri, "trunk/");
-            List<IAsyncResult> handlers = new List<IAsyncResult>();
+            List<Task> handlers = new List<Task>();
             for (int i = 0; i < 128; i++)
             {
                 int n = i;
-                EventHandler eh = delegate
+
+                handlers.Add(Task.Run(() =>
                 {
                     Trace.WriteLine("Starting job" + n.ToString());
                     new SvnClient().List(reposUri,
                         delegate { });
-                };
-
-                handlers.Add(eh.BeginInvoke(null, EventArgs.Empty, null, eh));
+                }));
             }
 
-            foreach (IAsyncResult ar in handlers)
-            {
-                ((EventHandler)ar.AsyncState).EndInvoke(ar);
-            }
+            Task.WaitAll(handlers.ToArray());
         }
 
         [TestMethod]
@@ -256,7 +253,7 @@ namespace SharpSvn.Tests.Commands
 
             Uri r = new Uri(new Uri(new Uri(uri, SvnTools.PathToRelativeUri(s1 + "/")), SvnTools.PathToRelativeUri(s2 + "/")), SvnTools.PathToRelativeUri(s3+"/"));
 
-            if (Environment.Version.Major < 4)
+            if (Environment.Version.Major < 4 && !IsCore())
                 Assert.That(r.ToString(), Is.EqualTo(ea.Uri.ToString()));
 
             // Run with a .Net normalized Uri
@@ -325,16 +322,11 @@ namespace SharpSvn.Tests.Commands
         [TestMethod]
         public void List_TestHash()
         {
-            using (SvnClient client = new SvnClient())
+            using (SvnClient client = NewSvnClient(false, false))
             {
                 Uri reposUri = new Uri("https://ctf.open.collab.net/svn/repos/ankhsvn/");
                 string baseUri = "https://ctf.open.collab.net/svn/repos/ankhsvn/testcases/trunk/WorstCase/AllTypesSolution/";
                 string exUri = baseUri + "%e3%83%97%e3%83%ad%e3%82%b0%e3%83%a9%e3%83%9f%e3%83%b3%e3%82%b0%23Silverlight/";
-
-                client.Authentication.Clear();
-                client.Authentication.DefaultCredentials = new NetworkCredential("guest", "");
-                client.Authentication.SslServerTrustHandlers += SvnAuthentication.SubversionWindowsSslServerTrustHandler;
-                client.Authentication.SslAuthorityTrustHandlers += SvnAuthentication.SubversionWindowsSslAuthorityTrustHandler;
 
                 bool found = false;
                 client.List(new SvnUriTarget(new Uri(baseUri), 11888),

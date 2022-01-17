@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright 2008-2009 The SharpSvn Project
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,11 +24,12 @@ using System.IO;
 
 using System.Runtime.InteropServices;
 using NUnit.Framework;
+using SharpSvn.Tests.Commands;
 
 namespace SharpSvn.Tests
 {
     [TestClass]
-    public class PathTests : IHasTestContext
+    public class PathTests : TestBase, IHasTestContext
     {
         readonly string _casedFile;
 
@@ -198,8 +199,14 @@ namespace SharpSvn.Tests
                 ptl = e;
             }
 
-            if (Environment.Version.Major < 4)
+            if (IsCore())
+                Assert.That(ptl, Is.Null, "Expected no error on Core");
+            else if (Environment.Version.Major < 4)
                 Assert.That(ptl, Is.Not.Null, "Expected error in v2.0");
+            else
+            {
+                // In .Net 4.x this is configurable on system and app level
+            }
         }
 
         [TestMethod]
@@ -231,6 +238,8 @@ namespace SharpSvn.Tests
                 "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890" +
                 "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"), "Shortcut route via IsNormalized");
 
+            if (File.Exists("C:\\Progra~1"))
+                Assert.That(SvnTools.GetNormalizedDirectoryName("C:\\Progra~1"), Is.EqualTo("C:\\Program Files"));
 
             Assert.That(SvnTools.GetNormalizedDirectoryName("C:\\asdasdashdadhjadjahjdhasjhajhfasdjsdf\\sdsdfsdfsdfgsdjhfsda hjsdsdf sdaf\\sad sad sad f\\"),
                 Is.EqualTo("C:\\asdasdashdadhjadjahjdhasjhajhfasdjsdf\\sdsdfsdfsdfgsdjhfsda hjsdsdf sdaf"));
@@ -238,7 +247,13 @@ namespace SharpSvn.Tests
             Assert.That(SvnTools.GetNormalizedDirectoryName("C:\\"), Is.Null);
             Assert.That(SvnTools.GetNormalizedDirectoryName("C:\\\\"), Is.Null);
             string drive = Environment.CurrentDirectory.Substring(0, 2).ToLowerInvariant();
-            Assert.That(SvnTools.GetNormalizedDirectoryName(drive), Is.EqualTo(drive.ToUpperInvariant()+Path.GetDirectoryName(Environment.CurrentDirectory).Substring(2))); // CWD on current drive
+            var curDir = Environment.CurrentDirectory;
+            if (curDir.Contains("~"))
+            {
+                // This case triggers on the GitHub bot
+                curDir = SvnTools.GetNormalizedFullPath(curDir);
+            }
+            Assert.That(SvnTools.GetNormalizedDirectoryName(drive), Is.EqualTo(drive.ToUpperInvariant()+Path.GetDirectoryName(curDir).Substring(2))); // CWD on current drive
             Assert.That(SvnTools.GetNormalizedDirectoryName("C:\\"), Is.Null);
             Assert.That(SvnTools.GetNormalizedDirectoryName("C:\\\\"), Is.Null);
             Assert.That(SvnTools.GetNormalizedDirectoryName("c:\\a"), Is.EqualTo("C:\\"));
@@ -351,7 +366,7 @@ namespace SharpSvn.Tests
                 gotException = true;
             }
 
-            if (Environment.Version.Major >= 4)
+            if (Environment.Version.Major >= 4 || IsCore())
                 Assert.That(result, Is.Not.Null);
             else
                 Assert.That(gotException, "Got exception");
@@ -498,7 +513,7 @@ namespace SharpSvn.Tests
         public void Path_UriStrangeness()
         {
             // Somehow the behavior reverts to 2.0 like for the VS Test runner?
-            if (Environment.Version.Major < 4 /* Or .Net 4.0 like runtime, but not .Net 4.5+ */)
+            if (Environment.Version.Major < 4 && !IsCore() /* Or .Net 4.0 like runtime, but not .Net 4.5+ */)
             {
                 // This is where we wrote this test for
                 Assert.That(new Uri("http://server/file.").AbsoluteUri, Is.EqualTo("http://server/file"));
@@ -621,12 +636,6 @@ namespace SharpSvn.Tests
             Assert.That(SvnPathTarget.FromString("c:\\source\\.").TargetPath, Is.EqualTo("C:\\source"));
             Assert.That(SvnPathTarget.FromString("c:\\source\\.\\").TargetPath, Is.EqualTo("C:\\source"));
             Assert.That(SvnPathTarget.FromString("c:\\source\\.\\dump").TargetPath, Is.EqualTo("C:\\source\\dump"));
-        }
-
-        public Microsoft.VisualStudio.TestTools.UnitTesting.TestContext TestContext
-        {
-            get;
-            set;
         }
     }
 }

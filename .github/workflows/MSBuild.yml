@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  SOLUTION_FILE_PATH: build/src/SharpSvn.sln
-  nant: '${{ github.workspace }}/build/imports/NAnt.0.92.0/tools/nant.exe'
+  SOLUTION_FILE_PATH: src/SharpSvn.sln
+  nant: '${{ github.workspace }}/imports/NAnt.0.92.0/tools/nant.exe'
 
 jobs:
   build:
@@ -18,15 +18,6 @@ jobs:
     steps:
     - name: Git Checkout
       uses: actions/checkout@v2
-      with:
-        path: build
-
-    - name: Cache
-      uses: actions/cache@v2
-      with:
-        path: |
-          build/imports/downloads
-        key: ${{runner.os}}-dist-${{ hashFiles('build/imports/*.build') }}
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1
@@ -35,46 +26,70 @@ jobs:
       uses: darenm/Setup-VSTest@v1
 
     - name: Install NAnt
-      working-directory: build/imports/
+      working-directory: imports/
       run: nuget.exe install NAnt
 
+    - name: Cache preparations
+      id: cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          imports/release
+          imports/build/refasmer
+          !imports/release/bin-*
+          !imports/release/bin/*.pdb
+        key: ${{runner.os}}-MSBuild-${{ hashFiles('imports/*.build') }}-${{ hashFiles('imports/scripts/*.build') }}
+
+    - name: Cache Import Downloads
+      if: steps.cache.outputs.cache-hit != 'true'
+      uses: actions/cache@v2
+      with:
+        path: |
+          imports/downloads
+        key: ${{runner.os}}-Import-Downloads-${{ hashFiles('imports/*.build') }}
+
     - name: Run NAnt preparations
-      working-directory: build
-      run: ${{env.nant}} -f:tools/buildbot.build "-D:CCNetNumericLabel=${{ github.run_number }}" "-D:CCNetProject=SharpSvn" -D:gitBuild=true buildbot-build
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: ${{env.nant}} -f:tools/buildbot.build buildbot-build
 
     - name: Setup version
-      working-directory: build
-      run: cmd.exe /C scripts\gh-version-setup ${{ github.run_number }}
-      
+      run: scripts\gh-version-setup.cmd ${{ github.run_number }}
+
     - name: Run nuget
-      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+      run: nuget.exe restore ${{env.SOLUTION_FILE_PATH}}
 
     - name: Build-x86
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /restore /p:Platform=x86 /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}} /p:BuildBotBuild=true @build\scripts\msbuild-version.rsp
+      run: msbuild.exe /r /v:m /p:Platform=x86 /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}} /p:BuildBotBuild=true @scripts\msbuild-version.rsp
 
     - name: Build-x64
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /restore /p:Platform=x64 /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}} /p:BuildBotBuild=true @build\scripts\msbuild-version.rsp
+      run: msbuild.exe /r /v:m /p:Platform=x64 /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}} /p:BuildBotBuild=true @scripts\msbuild-version.rsp
 
     - name: Build-x86-Core
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /restore /p:Platform=x86 /p:Configuration=ReleaseCore ${{env.SOLUTION_FILE_PATH}} /t:SharpSvn /p:BuildBotBuild=true @build\scripts\msbuild-version.rsp
+      run: msbuild.exe /r /v:m /p:Platform=x86 /p:Configuration=ReleaseCore ${{env.SOLUTION_FILE_PATH}} /p:BuildBotBuild=true @scripts\msbuild-version.rsp
 
     - name: Build-x64-Core
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /restore /p:Platform=x64 /p:Configuration=ReleaseCore ${{env.SOLUTION_FILE_PATH}} /t:SharpSvn /p:BuildBotBuild=true @build\scripts\msbuild-version.rsp
+      run: msbuild.exe /r /v:m /p:Platform=x64 /p:Configuration=ReleaseCore ${{env.SOLUTION_FILE_PATH}} /p:BuildBotBuild=true @scripts\msbuild-version.rsp
 
     - name: Build-arm64-Core
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /restore /p:Platform=ARM64 /p:Configuration=ReleaseCore ${{env.SOLUTION_FILE_PATH}} /t:SharpSvn /p:BuildBotBuild=true @build\scripts\msbuild-version.rsp
+      run: msbuild.exe /r /v:m /p:Platform=ARM64 /p:Configuration=ReleaseCore ${{env.SOLUTION_FILE_PATH}} /p:BuildBotBuild=true @scripts\msbuild-version.rsp
+
+    - name: VSTest-x86
+      run: vstest.console.exe /Platform:x86 src/SharpSvn.Tests/bin/x86/Release/SharpSvn.Tests.dll "--testcasefilter:TestCategory!=NeedsNetwork"
+
+    - name: VSTest-x64
+      run: vstest.console.exe /Platform:x64 src/SharpSvn.Tests/bin/x64/Release/SharpSvn.Tests.dll "--testcasefilter:TestCategory!=NeedsNetwork"
+
+    - name: VSTest-Core-x86
+      run: vstest.console.exe /Platform:x86 src/SharpSvn.Tests/bin/x86/ReleaseCore/SharpSvn.Tests.dll "--testcasefilter:TestCategory!=NeedsNetwork"
+
+    - name: VSTest-Core-x64
+      run: vstest.console.exe /Platform:x64 src/SharpSvn.Tests/bin/x64/ReleaseCore/SharpSvn.Tests.dll "--testcasefilter:TestCategory!=NeedsNetwork"
 
     - name: Create nupkg files
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: cmd.exe /C build\scripts\gh-build-nuget.cmd
+      run: scripts\gh-build-nuget.cmd
 
     - name: Package nupkg files
       uses: actions/upload-artifact@v2
       with:
         name: nupkg-files
-        path: build/nuspec/bin/*.nupkg
+        path: nuspec/bin/*.nupkg

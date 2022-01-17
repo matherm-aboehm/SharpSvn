@@ -1,14 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.props" Condition="Exists('..\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.props')" />
-  <Import Project="..\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.props" Condition="Exists('..\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.props')" />
-  <Import Project="..\packages\Microsoft.Build.Tasks.Git.1.0.0\build\Microsoft.Build.Tasks.Git.props" Condition="Exists('..\packages\Microsoft.Build.Tasks.Git.1.0.0\build\Microsoft.Build.Tasks.Git.props')" />
-  <Import Project="..\packages\SharpSvn.AnnotateAssembly.1.14001.17\build\SharpSvn.AnnotateAssembly.props" Condition="Exists('..\packages\SharpSvn.AnnotateAssembly.1.14001.17\build\SharpSvn.AnnotateAssembly.props')" />
+  <Import Project="..\packages\Microsoft.SourceLink.GitHub.1.1.1\build\Microsoft.SourceLink.GitHub.props" Condition="Exists('..\packages\Microsoft.SourceLink.GitHub.1.1.1\build\Microsoft.SourceLink.GitHub.props')" />
+  <Import Project="..\packages\Microsoft.SourceLink.Common.1.1.1\build\Microsoft.SourceLink.Common.props" Condition="Exists('..\packages\Microsoft.SourceLink.Common.1.1.1\build\Microsoft.SourceLink.Common.props')" />
+  <Import Project="..\packages\Microsoft.Build.Tasks.Git.1.1.1\build\Microsoft.Build.Tasks.Git.props" Condition="Exists('..\packages\Microsoft.Build.Tasks.Git.1.1.1\build\Microsoft.Build.Tasks.Git.props')" />
+  <Import Project="..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.props" Condition="Exists('..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.props')" />
   <PropertyGroup Label="PlatformFix">
     <!-- To allow including project in Sandcastle Helpfile Builder tools -->
     <Platform Condition="'$(Platform)' == 'x86'">Win32</Platform>
-    <!-- To allow building using VS2010 with the VS2008 toolset -->
-    <TargetFrameworkVersion Condition="'$(PlatformToolset)' == 'v90'">v2.0</TargetFrameworkVersion>
     <!-- Somehow these aren't initialized correctly in VS2010. They should be loaded based on the ToolsVersion -->
     <SDK35ToolsPath Condition="'$(SDK35ToolsPath)'==''">$(Registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.0A\WinSDK-NetFx35Tools-x86@InstallationFolder)</SDK35ToolsPath>
     <SDK40ToolsPath Condition="'$(SDK40ToolsPath)'==''">$(Registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.0A\WinSDK-NetFx40Tools-x86@InstallationFolder)</SDK40ToolsPath>
@@ -76,6 +74,7 @@
     </SccProvider>
     <Keyword>ManagedCProj</Keyword>
     <SharpSvnUpdateVersionResource>true</SharpSvnUpdateVersionResource>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -118,6 +117,7 @@
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>NetCore</CLRSupport>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <SharpSvnUpdateVersionResource>false</SharpSvnUpdateVersionResource>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -181,6 +181,7 @@
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>NetCore</CLRSupport>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <SharpSvnUpdateVersionResource>false</SharpSvnUpdateVersionResource>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -1024,9 +1025,9 @@ $(SolutionDir)tools\Errors2Enum\bin\Release\Errors2Enum.exe "$(VCInstallDir)." "
     <CustomBuild Include="SharpSvnStrings.txt" Condition="'$(BuildBotBuild)' != 'true'">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating SharpSvnStrings.h</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='DebugCore|Win32'">Generating SharpSvnStrings.h</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ResGen.exe /str:c++,$(RootNamespace) SharpSvnStrings.resx
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\MyResGen.cmd /str:c++,$(RootNamespace) SharpSvnStrings.resx
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='DebugCore|Win32'">ResGen.exe /str:c++,$(RootNamespace) SharpSvnStrings.resx
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugCore|Win32'">..\MyResGen.cmd /str:c++,$(RootNamespace) SharpSvnStrings.resx
 </Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">SharpSvnStrings.resx;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='DebugCore|Win32'">SharpSvnStrings.resx;%(AdditionalInputs)</AdditionalInputs>
@@ -1036,13 +1037,13 @@ $(SolutionDir)tools\Errors2Enum\bin\Release\Errors2Enum.exe "$(VCInstallDir)." "
       <Message Condition="'$(Configuration)|$(Platform)'=='DebugCore|x64'">Generating SharpSvnStrings.h</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Generating SharpSvnStrings.h</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='DebugCore|ARM64'">Generating SharpSvnStrings.h</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ResGen.exe /str:c++,$(RootNamespace) SharpSvnStrings.resx
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\MyResGen.cmd /str:c++,$(RootNamespace) SharpSvnStrings.resx
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='DebugCore|x64'">ResGen.exe /str:c++,$(RootNamespace) SharpSvnStrings.resx
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugCore|x64'">..\MyResGen.cmd /str:c++,$(RootNamespace) SharpSvnStrings.resx
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">ResGen.exe /str:c++,$(RootNamespace) SharpSvnStrings.resx
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">..\MyResGen.cmd /str:c++,$(RootNamespace) SharpSvnStrings.resx
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='DebugCore|ARM64'">ResGen.exe /str:c++,$(RootNamespace) SharpSvnStrings.resx
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugCore|ARM64'">..\MyResGen.cmd /str:c++,$(RootNamespace) SharpSvnStrings.resx
 </Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">SharpSvnStrings.resx;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='DebugCore|x64'">SharpSvnStrings.resx;%(AdditionalInputs)</AdditionalInputs>
@@ -1054,9 +1055,9 @@ $(SolutionDir)tools\Errors2Enum\bin\Release\Errors2Enum.exe "$(VCInstallDir)." "
       <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugCore|ARM64'">SharpSvnStrings.h;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generating SharpSvnStrings.h</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|Win32'">Generating SharpSvnStrings.h</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ResGen.exe /str:c++,$(RootNamespace) SharpSvnStrings.resx
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\MyResGen.cmd /str:c++,$(RootNamespace) SharpSvnStrings.resx
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|Win32'">ResGen.exe /str:c++,$(RootNamespace) SharpSvnStrings.resx
+      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|Win32'">..\MyResGen.cmd /str:c++,$(RootNamespace) SharpSvnStrings.resx
 </Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">SharpSvnStrings.resx;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|Win32'">SharpSvnStrings.resx;%(AdditionalInputs)</AdditionalInputs>
@@ -1066,13 +1067,13 @@ $(SolutionDir)tools\Errors2Enum\bin\Release\Errors2Enum.exe "$(VCInstallDir)." "
       <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|x64'">Generating SharpSvnStrings.h</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Generating SharpSvnStrings.h</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|ARM64'">Generating SharpSvnStrings.h</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ResGen.exe /str:c++,$(RootNamespace) SharpSvnStrings.resx
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\MyResGen.cmd /str:c++,$(RootNamespace) SharpSvnStrings.resx
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|x64'">ResGen.exe /str:c++,$(RootNamespace) SharpSvnStrings.resx
+      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|x64'">..\MyResGen.cmd /str:c++,$(RootNamespace) SharpSvnStrings.resx
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">ResGen.exe /str:c++,$(RootNamespace) SharpSvnStrings.resx
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">..\MyResGen.cmd /str:c++,$(RootNamespace) SharpSvnStrings.resx
 </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|ARM64'">ResGen.exe /str:c++,$(RootNamespace) SharpSvnStrings.resx
+      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|ARM64'">..\MyResGen.cmd /str:c++,$(RootNamespace) SharpSvnStrings.resx
 </Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">SharpSvnStrings.resx;%(AdditionalInputs)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseCore|x64'">SharpSvnStrings.resx;%(AdditionalInputs)</AdditionalInputs>
@@ -1259,22 +1260,22 @@ $(SolutionDir)tools\Errors2Enum\bin\Release\Errors2Enum.exe "$(VCInstallDir)." "
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\SharpSvn.AnnotateAssembly.1.14001.17\build\SharpSvn.AnnotateAssembly.targets" Condition="Exists('..\packages\SharpSvn.AnnotateAssembly.1.14001.17\build\SharpSvn.AnnotateAssembly.targets')" />
-    <Import Project="..\packages\Microsoft.Build.Tasks.Git.1.0.0\build\Microsoft.Build.Tasks.Git.targets" Condition="Exists('..\packages\Microsoft.Build.Tasks.Git.1.0.0\build\Microsoft.Build.Tasks.Git.targets')" />
-    <Import Project="..\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.targets" Condition="Exists('..\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.targets')" />
-    <Import Project="..\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.targets" Condition="Exists('..\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.targets')" />
+    <Import Project="..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.targets" Condition="Exists('..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.targets')" />
+    <Import Project="..\packages\Microsoft.Build.Tasks.Git.1.1.1\build\Microsoft.Build.Tasks.Git.targets" Condition="Exists('..\packages\Microsoft.Build.Tasks.Git.1.1.1\build\Microsoft.Build.Tasks.Git.targets')" />
+    <Import Project="..\packages\Microsoft.SourceLink.Common.1.1.1\build\Microsoft.SourceLink.Common.targets" Condition="Exists('..\packages\Microsoft.SourceLink.Common.1.1.1\build\Microsoft.SourceLink.Common.targets')" />
+    <Import Project="..\packages\Microsoft.SourceLink.GitHub.1.1.1\build\Microsoft.SourceLink.GitHub.targets" Condition="Exists('..\packages\Microsoft.SourceLink.GitHub.1.1.1\build\Microsoft.SourceLink.GitHub.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\SharpSvn.AnnotateAssembly.1.14001.17\build\SharpSvn.AnnotateAssembly.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpSvn.AnnotateAssembly.1.14001.17\build\SharpSvn.AnnotateAssembly.props'))" />
-    <Error Condition="!Exists('..\packages\SharpSvn.AnnotateAssembly.1.14001.17\build\SharpSvn.AnnotateAssembly.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpSvn.AnnotateAssembly.1.14001.17\build\SharpSvn.AnnotateAssembly.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Build.Tasks.Git.1.0.0\build\Microsoft.Build.Tasks.Git.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Tasks.Git.1.0.0\build\Microsoft.Build.Tasks.Git.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Build.Tasks.Git.1.0.0\build\Microsoft.Build.Tasks.Git.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Tasks.Git.1.0.0\build\Microsoft.Build.Tasks.Git.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.targets'))" />
+    <Error Condition="!Exists('..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.props'))" />
+    <Error Condition="!Exists('..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpSvn.AnnotateAssembly.1.14001.80\build\SharpSvn.AnnotateAssembly.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Build.Tasks.Git.1.1.1\build\Microsoft.Build.Tasks.Git.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Tasks.Git.1.1.1\build\Microsoft.Build.Tasks.Git.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Build.Tasks.Git.1.1.1\build\Microsoft.Build.Tasks.Git.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Tasks.Git.1.1.1\build\Microsoft.Build.Tasks.Git.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.SourceLink.Common.1.1.1\build\Microsoft.SourceLink.Common.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.SourceLink.Common.1.1.1\build\Microsoft.SourceLink.Common.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.SourceLink.Common.1.1.1\build\Microsoft.SourceLink.Common.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.SourceLink.Common.1.1.1\build\Microsoft.SourceLink.Common.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.SourceLink.GitHub.1.1.1\build\Microsoft.SourceLink.GitHub.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.SourceLink.GitHub.1.1.1\build\Microsoft.SourceLink.GitHub.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.SourceLink.GitHub.1.1.1\build\Microsoft.SourceLink.GitHub.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.SourceLink.GitHub.1.1.1\build\Microsoft.SourceLink.GitHub.targets'))" />
   </Target>
 </Project>
