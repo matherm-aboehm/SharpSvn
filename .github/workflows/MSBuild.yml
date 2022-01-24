@@ -109,6 +109,19 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: ${{env.nant}} -f:tools/buildbot.build "-D:heimdalDir=${{ github.workspace }}/${{ env.heimdal_path }}" buildbot-build
 
+    - name: Download heimdal runtime
+      id: download_heimdal
+      uses: suisei-cn/actions-download-file@v1
+      with:
+        url: https://www.secure-endpoints.com/binaries/heimdal/Heimdal-AMD64-full-7-4-0-40.msi
+        target: imports/downloads
+    
+    - name: Install heimdal runtime
+      run: |
+        Start-Process -Wait -FilePath "C:\Windows\system32\msiexec.exe" -ArgumentList "/i", "imports\downloads\${{ steps.download_heimdal.outputs.filename }}", "/quiet", "/l*", "imports\downloads\heimdal.log"
+        type "imports\downloads\heimdal.log"
+        echo "C:\Program Files (x86)\Heimdal\bin\;C:\Program Files\Heimdal\bin\" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
     - name: Setup version
       run: scripts\gh-version-setup.cmd ${{ github.run_number }}
 
