@@ -85,9 +85,19 @@
         <include name="sqlite3.lib" />
       </fileset>
     </copy>
+    <copy todir="${releaseLib}">
+      <fileset basedir="${sqliteIntDir}">
+        <include name="sqlite3.pdb" />
+      </fileset>
+    </copy>
     <copy todir="${intDir}\lib">
       <fileset basedir="${sqliteLibDir}">
         <include name="sqlite3.lib" />
+      </fileset>
+    </copy>
+    <copy todir="${intDir}\lib">
+      <fileset basedir="${sqliteIntDir}">
+        <include name="sqlite3.pdb" />
       </fileset>
     </copy>
     <copy todir="${intDir}\include">

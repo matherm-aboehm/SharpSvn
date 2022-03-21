@@ -176,6 +176,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
+      <ProgramDataBaseFileName>$(OutDir)intl3_svn.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)intl3_svn.lib</OutputFile>
@@ -193,6 +194,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
+      <ProgramDataBaseFileName>$(OutDir)intl3_svn.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)intl3_svn.lib</OutputFile>
@@ -210,6 +212,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
+      <ProgramDataBaseFileName>$(OutDir)intl3_svn.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)intl3_svn.lib</OutputFile>
@@ -229,6 +232,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
+      <ProgramDataBaseFileName>$(OutDir)intl3_svn.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)intl3_svn.lib</OutputFile>
@@ -246,6 +250,7 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
+      <ProgramDataBaseFileName>$(OutDir)intl3_svn.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)intl3_svn.lib</OutputFile>
@@ -264,6 +269,7 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
+      <ProgramDataBaseFileName>$(OutDir)intl3_svn.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)intl3_svn.lib</OutputFile>
@@ -282,6 +288,7 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
+      <ProgramDataBaseFileName>$(OutDir)intl3_svn.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)intl3_svn.lib</OutputFile>
@@ -302,6 +309,7 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
+      <ProgramDataBaseFileName>$(OutDir)intl3_svn.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)intl3_svn.lib</OutputFile>

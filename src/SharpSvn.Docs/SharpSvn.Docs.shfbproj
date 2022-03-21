@@ -14,7 +14,7 @@
     <AssemblyName>SharpSvn.Docs</AssemblyName>
     <RootNamespace>SharpSvn.Docs</RootNamespace>
     <Name>SharpSvn.Docs</Name>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <!-- SHFB properties -->
     <FrameworkVersion>.NET Framework 4.0</FrameworkVersion>
     <OutputPath>.\Help\</OutputPath>
