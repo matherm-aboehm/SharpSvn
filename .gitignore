@@ -7,14 +7,17 @@
 /imports/NAnt.*/
 /imports/release/
 .vs/
+.vscode/
 *.user
 [Uu]pgrade[Ll]og.htm
 [Mm]igration[Bb]ackup/
 packages/
+/release
 /src/SharpSvn/SvnText/
 /src/SharpSvn/SharpSvnStrings.resources
 /src/SharpSvn/SvnWindowsError.h
 /src/SharpSvn/CppCodeProvider.dll
+/src/SharpSvn.Docs/Help
 
 # Buildbot Scripting
 scripts/*.cache.bat
